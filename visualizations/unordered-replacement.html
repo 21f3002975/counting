@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stars and Bars Demo</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .hidden {
+      display: none;
+    }
+    .instructions {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    #input-section {
+      margin-bottom: 20px;
+    }
+    .shape-box {
+      border: 2px solid #ccc;
+      padding: 0px 10px;
+      border-radius: 10px;
+      background-color: #f9f9f9;
+      margin-top: 10px;
+      display: inline-block;
+    }
+    .shape-container {
+      display: flex;
+      gap: 0px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 0px;
+    }
+    .shape {
+      width: 40px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+    .star {
+      font-size: 24px;
+      color: lightgrey;
+      transition: color 0.3s;
+    }
+    .bar {
+      width: 6px;
+      height: 40px;
+      background-color: lightgrey;
+      position: absolute;
+      transition: background-color 0.3s;
+    }
+    .selected-bar {
+      background-color: blue !important;
+    }
+    .highlighted-star {
+      color: gold !important;
+    }
+    .counter {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .note {
+      font-style: italic;
+      margin-top: 10px;
+    }
+    button {
+      margin-top: 10px;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+    .input-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px 20px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .label-cell {
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .input-cell input {
+      width: 30px;
+      padding: 8px;
+      font-size: 20px;
+      box-sizing: border-box;
+    }
+    .button-container {
+      text-align: center;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Stars and bars demo</h2>
+  <div id="input-section">
+    <div class="input-grid">
+      <div class="label-cell">Number of Stars (max 9):</div>
+      <div class="input-cell">
+        <input type="number" id="star-count" min="1" max="9" maxlength="1" style="appearance: textfield;" />
+      </div>
+      <div class="label-cell">Number of Groups (max 9):</div>
+      <div class="input-cell">
+        <input type="number" id="group-count" min="1" max="9" maxlength="1" style="appearance: textfield;" />
+      </div>
+    </div>
+    <div class="button-container">
+      <button onclick="startDemo()">Generate demo</button>
+    </div>
+  </div>
+  
+
+  <div id="demo-section" class="hidden">
+    <div class="counter" id="counter"></div>
+    <div class="note">Note: number of bars (partitions) is 1 less than the number of groups.</div>
+    <div class="instructions"><i>(Click to place bars)</i></div>
+    <div class="shape-box">
+      <div class="shape-container" id="shape-container"></div>
+    </div>
+    <div id="step-messages" style="margin-top: 15px;"></div>
+    <button onclick="resetDemo()">Reset</button>
+  </div>
+
+  <script>
+    let barClicks = 0;
+    let maxBars = 0;
+    let starCount = 0;
+    let groupCount = 0;
+
+    function startDemo() {
+      starCount = parseInt(document.getElementById('star-count').value);
+      groupCount = parseInt(document.getElementById('group-count').value);
+
+      if (isNaN(starCount) || isNaN(groupCount) || starCount > 9 || groupCount > 9 || starCount < 1 || groupCount < 1) {
+        alert('Please enter valid numbers between 1 and 9.');
+        return;
+      }
+
+      document.getElementById('input-section').classList.add('hidden');
+      document.getElementById('demo-section').classList.remove('hidden');
+
+      const totalShapes = starCount + groupCount - 1;
+      maxBars = groupCount - 1;
+      barClicks = 0;
+
+      updateCounter();
+      updateStepMessages();
+
+      const container = document.getElementById('shape-container');
+      container.innerHTML = '';
+
+      for (let i = 0; i < totalShapes; i++) {
+        const shape = document.createElement('div');
+        shape.classList.add('shape');
+
+        const star = document.createElement('span');
+        star.classList.add('star');
+        star.innerHTML = '★';
+
+        const bar = document.createElement('div');
+        bar.classList.add('bar');
+
+        shape.appendChild(star);
+        shape.appendChild(bar);
+
+        shape.addEventListener('click', () => handleClick(shape));
+
+        container.appendChild(shape);
+      }
+    }
+
+    function handleClick(shape) {
+      const bar = shape.querySelector('.bar');
+      const star = shape.querySelector('.star');
+
+      if (bar.classList.contains('selected-bar') || !bar || !star) return;
+
+      if (barClicks < maxBars) {
+        bar.classList.add('selected-bar');
+        star.style.display = 'none';
+        barClicks++;
+        updateStepMessages();
+        updateCounter();
+      }
+
+      if (barClicks === maxBars) {
+        document.querySelectorAll('.shape').forEach(s => {
+          const bar = s.querySelector('.bar');
+          const star = s.querySelector('.star');
+          if (!bar.classList.contains('selected-bar')) {
+            bar.style.display = 'none';
+            star.classList.add('highlighted-star');
+          }
+        });
+      }
+    }
+
+    function updateCounter() {
+      const counter = document.getElementById('counter');
+      counter.textContent = `Total Stars: ${starCount}, Total Bars: ${groupCount - 1}, Remaining Bars: ${maxBars - barClicks}`;
+    }
+
+    function factorial(n) {
+        if (n < 0) return undefined; // optional error handling
+        let result = 1;
+        for (let i = 2; i <= n; i++) {
+            result *= i;
+        }
+        return result;
+    }
+
+
+    function updateStepMessages() {
+      const messageBox = document.getElementById('step-messages');
+      const totalPositions = starCount + groupCount - 1;
+      const messages = [];
+      let product = 0;
+      let loopStart = barClicks - 1
+
+      const currentBarNumber = Math.min(barClicks + 1, maxBars);
+      const choicesForCurrentBar = totalPositions - barClicks;
+
+      if (barClicks < maxBars) {
+        messages.push(`${choicesForCurrentBar} choices for bar ${currentBarNumber}`);
+      } else {
+        // When all bars placed, show choices for last bar
+        messages.push(`${totalPositions - maxBars + 1} choices for bar ${maxBars}`);
+        loopStart = barClicks - 2
+      }
+
+      // Show previous bars' choices in italics
+      const factors = [];
+      for (let i = loopStart; i >= 0; i--) {
+        const prevChoices = totalPositions - i;
+        messages.push(`<em>for each of the ${prevChoices} choices for bar ${i+1}</em>`);
+        factors.push(prevChoices);
+      }
+      // Add current bar's choices for product calculation
+      if (barClicks < maxBars) {
+        factors.push(choicesForCurrentBar);
+      } else {
+        factors.push(totalPositions - maxBars + 1);
+      }
+
+      if (barClicks > 0) {
+        product = factors.reduce((a, b) => a * b, 1);
+        messages.push(`= ${product} possible positions for ${barClicks + 1} bars in ${totalPositions} slots`);
+      }
+
+      if (barClicks == maxBars) {
+        maxBarsFactorial = factorial(maxBars)
+        messages.push('<div style="margin: 1em 0;"></div>')
+        messages.push(`Discounting ${maxBars}! = ${maxBarsFactorial} arrangements for each combination of ${maxBars} slots:`)
+        messages.push(`No. of possible ways to put ${starCount} stars in ${maxBars+1} boxes = ${product}/${maxBarsFactorial} = <b>${product/maxBarsFactorial}</b>`)
+      }
+
+      messageBox.innerHTML = messages.map(m => `<div>${m}</div>`).join('');
+    }
+
+    function resetDemo() {
+      document.getElementById('demo-section').classList.add('hidden');
+      document.getElementById('input-section').classList.remove('hidden');
+      document.getElementById('shape-container').innerHTML = '';
+      document.getElementById('step-messages').innerHTML = '';
+      document.getElementById('star-count').value = '';
+      document.getElementById('group-count').value = '';
+    }
+    document.querySelectorAll('input[type=number]').forEach(input => {
+        input.addEventListener('input', () => {
+            if (input.value.length > 1) {
+                input.value = input.value.slice(0, 1);
+            } else if (input.value == "0") {
+                input.value = null
+            }
+        });
+    });
+  </script>
+</body>
+</html>

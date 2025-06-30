@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Keypad Input with Explanation</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+    }
+
+    .boxes {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .box-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .box-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .box {
+        width: 60px;
+        height: 80px;
+        display: flex;
+        justify-content: center;  /* horizontal centering */
+        align-items: center;      /* vertical centering */
+        font-size: 28px;
+        border: 2px solid #444;
+        border-radius: 5px;
+        background: #f0f0f0;
+    }
+
+    .explanation {
+      max-width: 300px;
+      font-size: 14px;
+    }
+
+    .explanation i {
+      display: block;
+      margin-top: 2px;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(4, 60px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .key {
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      background-color: #ddd;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .key:hover {
+      background-color: #ccc;
+    }
+
+    .spacer {
+      visibility: hidden;
+    }
+
+    .actions {
+      position: absolute;
+      bottom: 40px;
+    }
+
+    .clear {
+      background-color: #f66;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .clear:hover {
+      background-color: #d44;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="boxes">
+      <div class="box-row" id="boxes">
+        <div class="box-container">
+          <div class="label">Position 1</div>
+          <div class="box"></div>
+        </div>
+        <div class="box-container">
+          <div class="label">Position 2</div>
+          <div class="box"></div>
+        </div>
+        <div class="box-container">
+          <div class="label">Position 3</div>
+          <div class="box"></div>
+        </div>
+        <div class="box-container">
+          <div class="label">Position 4</div>
+          <div class="box"></div>
+        </div>
+      </div>
+
+      <div class="explanation" id="explanation">
+        10 choices for position 1
+      </div>
+    </div>
+
+    <div class="keypad" id="keypad">
+      <!-- Buttons populated by JS -->
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="clear" onclick="clearBoxes()">Clear</button>
+  </div>
+
+  <script>
+    const boxes = document.querySelectorAll('.box');
+    const explanation = document.getElementById('explanation');
+    const keypad = document.getElementById('keypad');
+    let filled = 0;
+
+    const layout = [
+      "1", "2", "3",
+      "4", "5", "6",
+      "7", "8", "9",
+      "",  "0", ""
+    ];
+
+    layout.forEach(char => {
+      const btn = document.createElement("button");
+      if (char === "") {
+        btn.className = "spacer";
+      } else {
+        btn.textContent = char;
+        btn.className = "key";
+        btn.onclick = () => addDigit(char);
+      }
+      keypad.appendChild(btn);
+    });
+
+    function addDigit(digit) {
+      if (filled >= 4) return;
+
+      boxes[filled].textContent = digit;
+      filled++;
+
+      if (filled < 4) {
+        updateExplanation();
+      }
+    }
+
+    function updateExplanation() {
+      if (filled === 0) {
+        explanation.innerHTML = "10 choices for position 1";
+        return;
+      }
+
+      let text = `10 choices for position ${filled + 1}`;
+      let italics = "";
+      for (let i = filled; i >= 1; i--) {
+        italics += `<i>for each of the 10 choices in position ${i}</i>`;
+      }
+
+      let total = Math.pow(10, filled + 1);
+      italics += `<i>=10${" * 10".repeat(filled)} = ${total} possible choices</i>`;
+
+      explanation.innerHTML = `${text}${italics}`;
+    }
+
+    function clearBoxes() {
+      boxes.forEach(box => box.textContent = "");
+      filled = 0;
+      updateExplanation();
+    }
+  </script>
+
+</body>
+</html>

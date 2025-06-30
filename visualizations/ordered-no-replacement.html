@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Unique Digit Keypad</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+
+    .container {
+      display: flex;
+      gap: 40px;
+    }
+
+    .boxes {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    .box-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .box-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .label {
+      font-weight: bold;
+      margin-bottom: 3px;
+    }
+
+    .box {
+      width: 60px;
+      height: 80px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+      border: 2px solid #444;
+      border-radius: 5px;
+      background: #f0f0f0;
+    }
+
+    .explanation {
+      max-width: 300px;
+      font-size: 14px;
+    }
+
+    .explanation i {
+      display: block;
+      margin-top: 2px;
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 60px);
+      grid-template-rows: repeat(4, 60px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .key {
+      width: 60px;
+      height: 60px;
+      font-size: 20px;
+      background-color: #ddd;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .key:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+
+    .spacer {
+      visibility: hidden;
+    }
+
+    .actions {
+      position: absolute;
+      bottom: 40px;
+    }
+
+    .clear {
+      background-color: #f66;
+      color: white;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .clear:hover {
+      background-color: #d44;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="boxes">
+      <div class="box-row" id="boxes">
+        <div class="box-container">
+          <div class="label">Position 1</div>
+          <div class="box"></div>
+        </div>
+        <div class="box-container">
+          <div class="label">Position 2</div>
+          <div class="box"></div>
+        </div>
+        <div class="box-container">
+          <div class="label">Position 3</div>
+          <div class="box"></div>
+        </div>
+      </div>
+
+      <div class="explanation" id="explanation">
+        10 choices for position 1
+      </div>
+    </div>
+
+    <div class="keypad" id="keypad">
+      <!-- Digit buttons populated via JS -->
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="clear" onclick="clearBoxes()">Clear</button>
+  </div>
+
+  <script>
+    const boxes = document.querySelectorAll('.box');
+    const explanation = document.getElementById('explanation');
+    const keypad = document.getElementById('keypad');
+    let filled = 0;
+    const usedDigits = new Set();
+
+    const layout = [
+      "1", "2", "3",
+      "4", "5", "6",
+      "7", "8", "9",
+      "",  "0", ""
+    ];
+
+    const buttonMap = {}; // Map digit to button for disabling/enabling
+
+    layout.forEach(char => {
+      const btn = document.createElement("button");
+      if (char === "") {
+        btn.className = "spacer";
+      } else {
+        btn.textContent = char;
+        btn.className = "key";
+        btn.onclick = () => addDigit(char, btn);
+        buttonMap[char] = btn;
+      }
+      keypad.appendChild(btn);
+    });
+
+    function addDigit(digit, button) {
+      if (filled >= 3 || usedDigits.has(digit)) return;
+
+      boxes[filled].textContent = digit;
+      usedDigits.add(digit);
+      button.disabled = true;
+      filled++;
+
+      updateExplanation();
+    }
+
+    function updateExplanation() {
+      const choices = 10 - filled;
+      const pos = filled + 1;
+
+      if (filled < 3) {
+        let text = `${choices} choices for position ${pos}`;
+        let italics = "";
+
+        for (let i = filled; i >= 1; i--) {
+          italics += `<i>for each of the ${11-i} choices in position ${i}</i>`;
+        }
+
+        const multipliers = Array.from({ length: pos }, (_, i) => 10 - i);
+        const total = multipliers.reduce((a, b) => a * b, 1);
+        italics += `<i>=${multipliers.join(" * ")} = ${total} possible choices</i>`;
+
+        explanation.innerHTML = `${text}${italics}`;
+      } else {
+        explanation.innerHTML += "<i>No more positions to fill.</i>";
+      }
+    }
+
+    function clearBoxes() {
+      boxes.forEach(box => box.textContent = "");
+      filled = 0;
+      usedDigits.clear();
+      for (let digit in buttonMap) {
+        buttonMap[digit].disabled = false;
+      }
+      explanation.innerHTML = "10 choices for position 1";
+    }
+  </script>
+
+</body>
+</html>
