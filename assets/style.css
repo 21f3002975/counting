@@ -1,0 +1,78 @@
+/* style.css */
+
+/* 1. Base Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 2. Modern Web Fonts */
+body {
+  font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', sans-serif;
+  background-color: #f9f9fb;
+  color: #2e2e2e;
+  line-height: 1.6;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+}
+
+/* 3. Content Container with Left and Right Margins */
+main.content {
+  width: 100%;
+  max-width: 760px;
+  margin-left: 20%;
+  margin-right: 10%;
+  padding: 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+/* 4. Headings */
+h1, h2, h3, h4 {
+  color: #222;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+/* 5. Code Blocks and Math */
+code, pre {
+  background-color: #f3f4f6;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.95em;
+}
+
+/* 6. Links */
+a {
+  color: #007acc;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* 7. Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 2rem 0;
+}
+th, td {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  text-align: left;
+  background-color: #fff;
+}
+th {
+  background-color: #f0f0f0;
+}
+
+/* 8. Math block spacing */
+mjx-container {
+  margin: 1rem 0;
+}
